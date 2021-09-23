@@ -1,7 +1,9 @@
 package br.com.mybank.conta.contacorrente.service;
 
 import br.com.mybank.conta.contacorrente.domain.ContaCorrente;
+import br.com.mybank.conta.contacorrente.domain.TransacoesEmCC;
 import br.com.mybank.conta.contacorrente.repository.ContaCorrenteRepository;
+import br.com.mybank.conta.contacorrente.repository.TransacoesEmCCRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class ContaCorrenteService {
 
     private final ContaCorrenteRepository contaCorrenteRepository;
+    private final TransacoesEmCCRepository transacoesEmCCRepository;
 
     public ResponseEntity<?> adicionarContaCorrente(ContaCorrente contaCorrente, String token) throws JSONException, IOException {
 
@@ -96,6 +99,12 @@ public class ContaCorrenteService {
     }
 
 
+    public ResponseEntity<?> depositar(TransacoesEmCC deposito) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(transacoesEmCCRepository.save(deposito));
+
+    }
+
     private boolean isValidBearerToken(String accessToken) throws IOException {
         boolean isValid = false;
         String token = accessToken.replace("Bearer ", "");
@@ -110,6 +119,7 @@ public class ContaCorrenteService {
         }
         return isValid;
     }
+
 
 
 }

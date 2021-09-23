@@ -2,6 +2,7 @@ package br.com.mybank.conta.contacorrente.controller;
 
 
 import br.com.mybank.conta.contacorrente.domain.ContaCorrente;
+import br.com.mybank.conta.contacorrente.domain.TransacoesEmCC;
 import br.com.mybank.conta.contacorrente.service.ContaCorrenteService;
 import lombok.AllArgsConstructor;
 import org.json.JSONException;
@@ -50,5 +51,14 @@ public class ContaCorrenteController {
             @RequestHeader (value = "Authorization", required = true) String token) throws JSONException, IOException {
         return contaCorrenteService.removerContaCorrente(token);
     }
+
+
+    @PostMapping("depositar")
+    public ResponseEntity<?> depositar (
+            @RequestBody TransacoesEmCC deposito) {
+        return contaCorrenteService.depositar(deposito);
+
+    }
+
 
 }
