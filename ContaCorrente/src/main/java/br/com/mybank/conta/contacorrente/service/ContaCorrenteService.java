@@ -1,6 +1,7 @@
 package br.com.mybank.conta.contacorrente.service;
 
 import br.com.mybank.conta.contacorrente.domain.ContaCorrente;
+import br.com.mybank.conta.contacorrente.domain.Operacoes;
 import br.com.mybank.conta.contacorrente.domain.TransacoesEmCC;
 import br.com.mybank.conta.contacorrente.repository.ContaCorrenteRepository;
 import br.com.mybank.conta.contacorrente.repository.TransacoesEmCCRepository;
@@ -10,12 +11,14 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import lombok.AllArgsConstructor;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -101,8 +104,72 @@ public class ContaCorrenteService {
 
     public ResponseEntity<?> depositar(TransacoesEmCC deposito) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(transacoesEmCCRepository.save(deposito));
+        //TODO validações com token
 
+        //TODO código do usuário está na mão para testes
+        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
+        BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
+        if (saldoEspecial.equals(BigDecimal.valueOf(0))) {
+            contaCorrenteOptional.get().setSaldoCorrente(saldoCC.add(deposito.getValor()));
+        } else if (saldoEspecial.compareTo(deposito.getValor()) >= 0) {
+            contaCorrenteOptional.get().setSaldoEspecial(saldoEspecial.subtract(deposito.getValor()));
+        } else {
+            contaCorrenteOptional.get().setSaldoCorrente(saldoCC.add(deposito.getValor().subtract(saldoEspecial)));
+            contaCorrenteOptional.get().setSaldoEspecial(BigDecimal.valueOf(0));
+            contaCorrenteOptional.get().setDataInicioUsoEspecial(null);
+        }
+
+        ContaCorrente contaCorrente = CCOptionalParaCC(contaCorrenteOptional);
+        contaCorrenteRepository.save(contaCorrente);
+        transacoesEmCCRepository.save(deposito);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Depósito realizado com sucesso!");
+
+    }
+
+
+    public ResponseEntity<?> sacar(TransacoesEmCC saque) {
+
+        //TODO validações com token
+
+        //TODO código do usuário está na mão para testes
+        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
+        BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
+        BigDecimal saqueValor = saque.getValor();
+
+        if (saqueValor.compareTo(saldoCC) <= 0 ) {
+            contaCorrenteOptional.get().setSaldoCorrente(saldoCC.subtract(saqueValor));
+        } else if (saqueValor.compareTo(saldoCC) > 0
+                && saqueValor.add(saldoEspecial).compareTo(contaCorrenteOptional.get().getLimiteEspecial()) <= 0)  {
+            contaCorrenteOptional.get().setSaldoEspecial(saldoEspecial.add(saqueValor.subtract(saldoCC)));
+            contaCorrenteOptional.get().setSaldoCorrente(BigDecimal.valueOf(0));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Saldo insuficiente!");
+        }
+
+        ContaCorrente contaCorrente = CCOptionalParaCC(contaCorrenteOptional);
+        contaCorrenteRepository.save(contaCorrente);
+        transacoesEmCCRepository.save(saque);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Saque realizado com sucesso!");
+    }
+
+    private ContaCorrente CCOptionalParaCC(Optional<ContaCorrente> contaCorrenteOptional) {
+        ContaCorrente contaCorrente = new ContaCorrente();
+        contaCorrente.setId(contaCorrenteOptional.get().getId());
+        contaCorrente.setSaldoCorrente(contaCorrenteOptional.get().getSaldoCorrente());
+        contaCorrente.setSaldoEspecial(contaCorrenteOptional.get().getSaldoEspecial());
+        contaCorrente.setAtivo(contaCorrenteOptional.get().isAtivo());
+        contaCorrente.setDataInicioUsoEspecial(contaCorrenteOptional.get().getDataInicioUsoEspecial());
+        contaCorrente.setNumeroConta(contaCorrenteOptional.get().getNumeroConta());
+        contaCorrente.setDataAbertura(contaCorrenteOptional.get().getDataAbertura());
+        contaCorrente.setDataFechamento(contaCorrenteOptional.get().getDataFechamento());
+        contaCorrente.setIdPessoa(contaCorrenteOptional.get().getIdPessoa());
+        contaCorrente.setIdUsuario(contaCorrenteOptional.get().getIdUsuario());
+        contaCorrente.setLimiteEspecial(contaCorrenteOptional.get().getLimiteEspecial());
+        return contaCorrente;
     }
 
     private boolean isValidBearerToken(String accessToken) throws IOException {
@@ -121,5 +188,26 @@ public class ContaCorrenteService {
     }
 
 
+    public void aplicarJuros(Float percentual) {
 
+        List<ContaCorrente> contaCorrenteList = contaCorrenteRepository.findAll();
+
+        for (ContaCorrente contaCorrente : contaCorrenteList) {
+
+            if (contaCorrente.getSaldoEspecial().compareTo(BigDecimal.valueOf(0)) >= 0) {
+                BigDecimal saldoEspecial = contaCorrente.getSaldoEspecial();
+                contaCorrente.setSaldoEspecial(
+                        contaCorrente.getSaldoEspecial()
+                                .add(contaCorrente.getSaldoEspecial()
+                                        .multiply(BigDecimal.valueOf(percentual))));
+                TransacoesEmCC juros = new TransacoesEmCC();
+                juros.setOperacoes(Operacoes.JUROS);
+                juros.setData(LocalDate.now());
+                juros.setIdConta(contaCorrente.getId());
+                juros.setValor(contaCorrente.getSaldoCorrente().subtract(saldoEspecial));
+                transacoesEmCCRepository.save(juros);
+                contaCorrenteRepository.save(contaCorrente);
+            }
+        }
+    }
 }

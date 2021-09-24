@@ -31,8 +31,6 @@ public class TransacoesEmCC {
     private String pixDestino;
     private String contaDestino;
     private BigDecimal valor;
-    @ManyToOne
-    @JoinColumn(name = "idConta")
-    private ContaCorrente idConta;
+    private Integer idConta;
 
 }

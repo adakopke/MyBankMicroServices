@@ -1,0 +1,13 @@
+server:
+  port: 8761
+
+spring:
+  boot:
+    admin:
+      context-path: '/admin'
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+

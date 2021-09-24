@@ -60,5 +60,16 @@ public class ContaCorrenteController {
 
     }
 
+    @PostMapping("sacar")
+    public ResponseEntity<?> sacar (
+            @RequestBody TransacoesEmCC saque) {
+        return contaCorrenteService.sacar(saque);
+    }
+
+    @GetMapping("aplicarJuros/{percentual}")
+    public void aplicarJuros (@PathVariable Float percentual) {
+        contaCorrenteService.aplicarJuros(percentual);
+    }
+
 
 }

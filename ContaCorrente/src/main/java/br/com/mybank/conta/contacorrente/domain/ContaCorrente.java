@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -26,10 +27,11 @@ public class ContaCorrente {
     private String numeroConta;
     private Integer idPessoa;
     private Integer idUsuario;
-    private LocalDate dataAbertura;
-    private LocalDate dataFechamento;
+    private LocalDateTime dataAbertura;
+    private LocalDateTime dataFechamento;
     private boolean ativo;
     private BigDecimal saldoCorrente;
     private BigDecimal saldoEspecial;
     private BigDecimal limiteEspecial;
+    private LocalDateTime dataInicioUsoEspecial;
 }
