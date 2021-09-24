@@ -71,5 +71,9 @@ public class ContaCorrenteController {
         contaCorrenteService.aplicarJuros(percentual);
     }
 
+    @PostMapping("transferencia")
+    public ResponseEntity<?> transferir (@RequestBody TransacoesEmCC transacoesEmCC) {
+       return contaCorrenteService.transferir(transacoesEmCC);
+    }
 
 }

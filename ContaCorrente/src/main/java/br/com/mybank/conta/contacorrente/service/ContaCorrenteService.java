@@ -156,6 +156,59 @@ public class ContaCorrenteService {
         return ResponseEntity.status(HttpStatus.OK).body("Saque realizado com sucesso!");
     }
 
+    public ResponseEntity<?> transferir(TransacoesEmCC transferencia) {
+
+        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
+        BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
+        BigDecimal transferenciaValor = transferencia.getValor();
+
+        if (transferenciaValor.compareTo(saldoCC) <= 0 ) {
+            contaCorrenteOptional.get().setSaldoCorrente(saldoCC.subtract(transferenciaValor));
+        } else if (transferenciaValor.compareTo(saldoCC) > 0
+                && transferenciaValor.add(saldoEspecial).compareTo(contaCorrenteOptional.get().getLimiteEspecial()) <= 0)  {
+            contaCorrenteOptional.get().setSaldoEspecial(saldoEspecial.add(transferenciaValor.subtract(saldoCC)));
+            contaCorrenteOptional.get().setSaldoCorrente(BigDecimal.valueOf(0));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Saldo insuficiente!");
+        }
+
+        ContaCorrente contaCorrente = CCOptionalParaCC(contaCorrenteOptional);
+        contaCorrenteRepository.save(contaCorrente);
+        transacoesEmCCRepository.save(transferencia);
+
+
+        Optional<ContaCorrente> contadestino = contaCorrenteRepository.findByNumeroConta(transferencia.getContaDestino());
+        BigDecimal saldoCCDestino = contadestino.get().getSaldoCorrente();
+        BigDecimal saldoEspecialDestino = contadestino.get().getSaldoEspecial();
+        if (saldoEspecialDestino.equals(BigDecimal.valueOf(0))) {
+            contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor()));
+        } else if (saldoEspecialDestino.compareTo(transferencia.getValor()) >= 0) {
+            contadestino.get().setSaldoEspecial(saldoEspecialDestino.subtract(transferencia.getValor()));
+        } else {
+            contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor().subtract(saldoEspecialDestino)));
+            contadestino.get().setSaldoEspecial(BigDecimal.valueOf(0));
+            contadestino.get().setDataInicioUsoEspecial(null);
+        }
+
+        ContaCorrente contaCorrenteDestino = CCOptionalParaCC(contadestino);
+        contaCorrenteRepository.save(contaCorrenteDestino);
+        TransacoesEmCC registroParaContaDestino = new TransacoesEmCC();
+        registroParaContaDestino.setIdConta(contaCorrenteDestino.getId());
+        registroParaContaDestino.setValor(transferencia.getValor());
+        registroParaContaDestino.setContaDestino(transferencia.getContaDestino());
+        registroParaContaDestino.setData(transferencia.getData());
+        registroParaContaDestino.setOperacoes(transferencia.getOperacoes());
+        registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getIdConta()));
+        transacoesEmCCRepository.save(registroParaContaDestino);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso!");
+
+    }
+
+
+
+
     private ContaCorrente CCOptionalParaCC(Optional<ContaCorrente> contaCorrenteOptional) {
         ContaCorrente contaCorrente = new ContaCorrente();
         contaCorrente.setId(contaCorrenteOptional.get().getId());
@@ -210,4 +263,6 @@ public class ContaCorrenteService {
             }
         }
     }
+
+
 }

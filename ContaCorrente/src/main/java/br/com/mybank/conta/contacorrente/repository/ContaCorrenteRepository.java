@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ContaCorrenteRepository extends JpaRepository<ContaCorrente, Integer> {
     public Optional<ContaCorrente> findByIdUsuario(Integer id);
+    public Optional<ContaCorrente> findByNumeroConta(String id);
 }
