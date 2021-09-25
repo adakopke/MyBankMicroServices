@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,4 +77,9 @@ public class ContaCorrenteController {
        return contaCorrenteService.transferir(transacoesEmCC);
     }
 
+    @PostMapping("recarga/{celular}/{valor}")
+    public ResponseEntity<?> recarregarCelular (@PathVariable String celular, @PathVariable BigDecimal valor, @RequestHeader (value = "Authorization", required = true) String token) throws JSONException, IOException {
+
+        return contaCorrenteService.recarregarCelular(celular, token, valor);
+    }
 }

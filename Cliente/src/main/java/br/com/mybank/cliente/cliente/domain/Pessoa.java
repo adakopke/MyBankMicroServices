@@ -21,6 +21,7 @@ public class Pessoa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nome;
+    //TODO criar uma tabela separada para cadastrar vários telefones
     private String telefone;
     private Genero genero;
     private LocalDate nascimento;

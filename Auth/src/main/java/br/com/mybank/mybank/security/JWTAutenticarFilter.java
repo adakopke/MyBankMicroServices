@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class JWTAutenticarFilter extends UsernamePasswordAuthenticationFilter {
 
-    public static final int TOKEN_EXPIRACAO = 6000_000;
+    public static final int TOKEN_EXPIRACAO = 60000_000;
     //TODO esta senha deverá ser levada para uma variável de ambiente ou coisa do tipo
     public static final String TOKEN_SENHA = "75a8030c-83c3-41a4-9bc9-3a9c97a7d8db";
     private final AuthenticationManager authenticationManager;

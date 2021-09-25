@@ -15,12 +15,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -29,6 +31,7 @@ public class ContaCorrenteService {
 
     private final ContaCorrenteRepository contaCorrenteRepository;
     private final TransacoesEmCCRepository transacoesEmCCRepository;
+    private final RestTemplate restTemplate;
 
     public ResponseEntity<?> adicionarContaCorrente(ContaCorrente contaCorrente, String token) throws JSONException, IOException {
 
@@ -209,6 +212,7 @@ public class ContaCorrenteService {
 
 
 
+
     private ContaCorrente CCOptionalParaCC(Optional<ContaCorrente> contaCorrenteOptional) {
         ContaCorrente contaCorrente = new ContaCorrente();
         contaCorrente.setId(contaCorrenteOptional.get().getId());
@@ -247,7 +251,7 @@ public class ContaCorrenteService {
 
         for (ContaCorrente contaCorrente : contaCorrenteList) {
 
-            if (contaCorrente.getSaldoEspecial().compareTo(BigDecimal.valueOf(0)) >= 0) {
+            if (contaCorrente.getSaldoEspecial().compareTo(BigDecimal.valueOf(0)) > 0) {
                 BigDecimal saldoEspecial = contaCorrente.getSaldoEspecial();
                 contaCorrente.setSaldoEspecial(
                         contaCorrente.getSaldoEspecial()
@@ -257,7 +261,7 @@ public class ContaCorrenteService {
                 juros.setOperacoes(Operacoes.JUROS);
                 juros.setData(LocalDate.now());
                 juros.setIdConta(contaCorrente.getId());
-                juros.setValor(contaCorrente.getSaldoCorrente().subtract(saldoEspecial));
+                juros.setValor(contaCorrente.getSaldoEspecial().subtract(saldoEspecial));
                 transacoesEmCCRepository.save(juros);
                 contaCorrenteRepository.save(contaCorrente);
             }
@@ -265,4 +269,42 @@ public class ContaCorrenteService {
     }
 
 
+    public ResponseEntity<?> recarregarCelular(String celular, String token, BigDecimal valor) throws JSONException, IOException {
+
+        JSONObject tokenJson = new JSONObject(jwtFilter(token));
+        if (!isValidBearerToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+        }
+
+           ResponseEntity<Map> response = restTemplate.getForEntity(
+                String.format("http://localhost:8081/api/cliente/pesquisar/%s", tokenJson.get("id")), Map.class);
+
+            if (!response.getBody().get("telefone").equals(celular)) {
+             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Telefone não corresponde com o cadastrado");
+        }
+
+        ContaCorrente contaCorrente = listarPorIdUsuario((Integer) tokenJson.get("id")).get();
+        BigDecimal saldoCC = contaCorrente.getSaldoCorrente();
+        BigDecimal saldoEspecial = contaCorrente.getSaldoEspecial();
+
+        if (valor.compareTo(saldoCC) <= 0 ) {
+            contaCorrente.setSaldoCorrente(saldoCC.subtract(valor));
+        } else if (valor.compareTo(saldoCC) > 0
+                && valor.add(saldoEspecial).compareTo(contaCorrente.getLimiteEspecial()) <= 0)  {
+            contaCorrente.setSaldoEspecial(saldoEspecial.add(valor.subtract(saldoCC)));
+            contaCorrente.setSaldoCorrente(BigDecimal.valueOf(0));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Saldo insuficiente!");
+        }
+
+        contaCorrenteRepository.save(contaCorrente);
+        TransacoesEmCC recarga = new TransacoesEmCC();
+        recarga.setOperacoes(Operacoes.RECARGACEL);
+        recarga.setData(LocalDate.now());
+        recarga.setIdConta(contaCorrente.getId());
+        recarga.setValor(valor);
+        transacoesEmCCRepository.save(recarga);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Recarga realizada com sucesso!");
+    }
 }
