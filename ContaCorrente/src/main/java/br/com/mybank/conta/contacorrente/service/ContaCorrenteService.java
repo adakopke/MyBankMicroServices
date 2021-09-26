@@ -161,6 +161,18 @@ public class ContaCorrenteService {
 
     public ResponseEntity<?> transferir(TransacoesEmCC transferencia) {
 
+        if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
+
+
+            ResponseEntity<Map> response = restTemplate.getForEntity(
+                    String.format("http://localhost:8079/api/pix/consultar/%s", transferencia.getPixDestino()), Map.class);
+//TODO tratar essa resposta de uma maneira melhor, tentar pelo código do retorno fornecido pelo pixAPI
+        if (response.getBody().get("resp").equals("false")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chave pix não encontrada");
+            }
+        }
+
+
         Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
         BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
         BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
@@ -205,7 +217,11 @@ public class ContaCorrenteService {
         registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getIdConta()));
         transacoesEmCCRepository.save(registroParaContaDestino);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso!");
+        if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Pix realizado com sucesso!");
+        }
+
+           return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso!");
 
     }
 
