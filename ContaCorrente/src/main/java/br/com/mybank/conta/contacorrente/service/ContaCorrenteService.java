@@ -35,10 +35,10 @@ public class ContaCorrenteService {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<?> adicionarContaCorrente(ContaCorrente contaCorrente, String token) throws JSONException, IOException {
-        JSONObject tokenJson = new JSONObject(jwtFilter(token));
-        if (!isValidBearerToken(token) || !contaCorrente.getIdUsuario().equals(tokenJson.get("id"))) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
-        }
+            JSONObject tokenJson = new JSONObject(jwtFilter(token));
+            if (!isValidBearerToken(token) || !contaCorrente.getIdUsuario().equals(tokenJson.get("id"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(contaCorrenteRepository.save(contaCorrente));
     }
 
