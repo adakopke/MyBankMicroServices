@@ -37,16 +37,15 @@ public class ClienteService {
 
     }
 
-    //TODO criar perfis no serviço de autenticacao e um usuário admin, permitir que apenas ele faça uso de serviços este
-    public List<Pessoa> listarTodos() {
+   public ResponseEntity<?> listarTodos(String token) throws JSONException, IOException {
 
-        return clienteRepository.findAll();
+       JSONObject tokenJson = new JSONObject(jwtFilter(token));
 
-    }
+       if (!isValidBearerToken(token) || !tokenJson.get("sub").equals("admin")) {
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+       }
 
-    public Optional<Pessoa> listarPorIdUsuario(Integer id) {
-
-        return clienteRepository.findByIdUsuario(id);
+        return ResponseEntity.status(HttpStatus.OK).body(clienteRepository.findAll());
 
     }
 
@@ -58,8 +57,6 @@ public class ClienteService {
 
         JSONObject tokenjson = new JSONObject(jwtFilter(token));
 
-
-
         if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenjson.get("id"))) {
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
@@ -68,28 +65,27 @@ public class ClienteService {
 
         pessoa.setId(listarPorIdUsuario((Integer) tokenjson.get("id")).get().getId());
         return ResponseEntity.status(HttpStatus.OK).body(clienteRepository.save(pessoa));
-
     }
 
 
+    //TODO verificar se tem conta ativa antes de deixar desativar o cliente
     public ResponseEntity<?> removerPessoa(String token) throws JSONException, IOException {
 
        JSONObject tokenjson = new JSONObject(jwtFilter(token));
-
         if (!isValidBearerToken(token)) {
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido ou expirado");
         } else if (listarPorIdUsuario((Integer) tokenjson.get("id")).isEmpty()) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
-
        Pessoa pessoa = listarPorIdUsuario((Integer) tokenjson.get("id")).get();
        pessoa.setAtivo(false);
        clienteRepository.save(pessoa);
        return ResponseEntity.status(HttpStatus.OK).body("Usuário desativado com sucesso");
        }
 
+    public Optional<Pessoa> listarPorIdUsuario(Integer id) {
+        return clienteRepository.findByIdUsuario(id);
+    }
 
     private String jwtFilter(String token){
         Base64.Decoder decoder = Base64.getDecoder();
@@ -97,11 +93,7 @@ public class ClienteService {
         String[] chunks = token.split("\\.");
         String payload = new String(decoder.decode(chunks[1]));
         return payload;
-
-
-
     }
-
 
     private boolean isValidBearerToken(String accessToken) throws IOException {
         boolean isValid = false;

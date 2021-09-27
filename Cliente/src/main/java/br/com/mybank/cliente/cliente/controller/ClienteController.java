@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -26,13 +26,8 @@ public class ClienteController {
     }
 
     @GetMapping("listartodos")
-    public List<Pessoa> listarTodos() {
-        return clienteService.listarTodos();
-    }
-
-    @GetMapping("pesquisar/{id}")
-    public Optional<Pessoa> listarPorId(@PathVariable Integer id) {
-        return clienteService.listarPorIdUsuario(id);
+    public ResponseEntity<?> listarTodos(@RequestHeader(value = "Authorization", required = true) String token) throws JSONException, IOException {
+        return clienteService.listarTodos(token);
     }
 
     @PutMapping("atualizar")
@@ -44,6 +39,13 @@ public class ClienteController {
     @DeleteMapping("remover")
     public ResponseEntity<?> removerPessoa(@RequestHeader (value = "Authorization", required = true) String token) throws JSONException, IOException {
         return clienteService.removerPessoa(token);
+    }
+
+    
+    //TODO Fazer com que os microserviços consultem enviando o token
+    @GetMapping("pesquisar/{id}")
+    public Optional<Pessoa> listarPorId(@PathVariable Integer id) {
+        return clienteService.listarPorIdUsuario(id);
     }
 
 

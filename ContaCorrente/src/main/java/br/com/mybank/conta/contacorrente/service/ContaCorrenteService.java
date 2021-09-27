@@ -5,6 +5,7 @@ import br.com.mybank.conta.contacorrente.domain.Operacoes;
 import br.com.mybank.conta.contacorrente.domain.TransacoesEmCC;
 import br.com.mybank.conta.contacorrente.repository.ContaCorrenteRepository;
 import br.com.mybank.conta.contacorrente.repository.TransacoesEmCCRepository;
+import br.com.mybank.conta.contacorrente.response.TransacoesEmCI;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -34,41 +35,42 @@ public class ContaCorrenteService {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<?> adicionarContaCorrente(ContaCorrente contaCorrente, String token) throws JSONException, IOException {
-
         JSONObject tokenJson = new JSONObject(jwtFilter(token));
-
         if (!isValidBearerToken(token) || !contaCorrente.getIdUsuario().equals(tokenJson.get("id"))) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
         }
+            return ResponseEntity.status(HttpStatus.CREATED).body(contaCorrenteRepository.save(contaCorrente));
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(contaCorrenteRepository.save(contaCorrente));
+    public ResponseEntity<?> listarTodas(String token) throws JSONException, IOException {
+        JSONObject tokenJson = new JSONObject(jwtFilter(token));
+        if (!isValidBearerToken(token) || !tokenJson.get("sub").equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(contaCorrenteRepository.findAll());
 
     }
 
-    public List<ContaCorrente> listarTodas() {
-        return contaCorrenteRepository.findAll();
-    }
-
-
-    public Optional<ContaCorrente> listarPorIdUsuario(Integer id)  {
+    public Optional<ContaCorrente> listarPorIdUsuario(Integer id) {
         return contaCorrenteRepository.findByIdUsuario(id);
+    }
 
-
+    public Optional<ContaCorrente> listarPorIdConta(Integer id) {
+        return contaCorrenteRepository.findById(id);
     }
 
     public ResponseEntity<?> atualizarContacorrente(ContaCorrente contaCorrente, String token) throws JSONException, IOException {
 
         JSONObject tokenJson = new JSONObject(jwtFilter(token));
-
-        if (!isValidBearerToken(token) || !contaCorrente.getIdUsuario().equals(tokenJson.get("id"))) {
+        if (!isValidBearerToken(token) || !tokenJson.get("sub").equals("admin")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
         }
 
-        contaCorrente.setId(listarPorIdUsuario((Integer) tokenJson.get("id")).get().getId());
+        contaCorrente.setId(listarPorIdUsuario(contaCorrente.getIdUsuario()).get().getId());
         return ResponseEntity.status(HttpStatus.OK).body(contaCorrenteRepository.save(contaCorrente));
 
     }
-
 
     public ResponseEntity<?> removerContaCorrente(String token) throws JSONException, IOException {
 
@@ -107,10 +109,7 @@ public class ContaCorrenteService {
 
     public ResponseEntity<?> depositar(TransacoesEmCC deposito) {
 
-        //TODO validações com token
-
-        //TODO código do usuário está na mão para testes
-        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        Optional<ContaCorrente> contaCorrenteOptional = contaCorrenteRepository.findByNumeroConta(deposito.getContaDestino());
         BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
         BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
         if (saldoEspecial.equals(BigDecimal.valueOf(0))) {
@@ -131,13 +130,15 @@ public class ContaCorrenteService {
 
     }
 
+    public ResponseEntity<?> sacar(TransacoesEmCC saque, String token) throws JSONException, IOException {
 
-    public ResponseEntity<?> sacar(TransacoesEmCC saque) {
+        JSONObject tokenJson = new JSONObject(jwtFilter(token));
 
-        //TODO validações com token
+        if (!isValidBearerToken(token) || ! listarPorIdConta(saque.getIdConta()).get().getIdUsuario().equals(tokenJson.get("id"))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+        }
 
-        //TODO código do usuário está na mão para testes
-        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario((Integer) tokenJson.get("id"));
         BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
         BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
         BigDecimal saqueValor = saque.getValor();
@@ -159,10 +160,17 @@ public class ContaCorrenteService {
         return ResponseEntity.status(HttpStatus.OK).body("Saque realizado com sucesso!");
     }
 
-    public ResponseEntity<?> transferir(TransacoesEmCC transferencia) {
+    public ResponseEntity<?> transferir(TransacoesEmCC transferencia, String token) throws JSONException, IOException {
+
+
+        JSONObject tokenJson = new JSONObject(jwtFilter(token));
+
+        if (!isValidBearerToken(token) || !listarPorIdConta(transferencia.getIdConta()).get().getIdUsuario().equals(tokenJson.get("id"))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+        }
+
 
         if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
-
 
             ResponseEntity<Map> response = restTemplate.getForEntity(
                     String.format("http://localhost:8079/api/pix/consultar/%s", transferencia.getPixDestino()), Map.class);
@@ -172,8 +180,7 @@ public class ContaCorrenteService {
             }
         }
 
-
-        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario(1);
+        Optional<ContaCorrente> contaCorrenteOptional = listarPorIdUsuario((Integer) tokenJson.get("id"));
         BigDecimal saldoCC = contaCorrenteOptional.get().getSaldoCorrente();
         BigDecimal saldoEspecial = contaCorrenteOptional.get().getSaldoEspecial();
         BigDecimal transferenciaValor = transferencia.getValor();
@@ -192,42 +199,67 @@ public class ContaCorrenteService {
         contaCorrenteRepository.save(contaCorrente);
         transacoesEmCCRepository.save(transferencia);
 
+        if (transferencia.getOperacoes().equals(Operacoes.APORTE)) {
 
-        Optional<ContaCorrente> contadestino = contaCorrenteRepository.findByNumeroConta(transferencia.getContaDestino());
-        BigDecimal saldoCCDestino = contadestino.get().getSaldoCorrente();
-        BigDecimal saldoEspecialDestino = contadestino.get().getSaldoEspecial();
-        if (saldoEspecialDestino.equals(BigDecimal.valueOf(0))) {
-            contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor()));
-        } else if (saldoEspecialDestino.compareTo(transferencia.getValor()) >= 0) {
-            contadestino.get().setSaldoEspecial(saldoEspecialDestino.subtract(transferencia.getValor()));
+            if (!contaCorrenteRepository.findByNumeroConta(transferencia.getContaOrigem()).get().getIdUsuario().equals(tokenJson.get("id"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Conta de origem não permitida");
+            }
+
+            ResponseEntity<Map> response = restTemplate.getForEntity(
+                    String.format("http://localhost:8083/api/containvestimento/listar/%s", tokenJson.get("id")), Map.class);
+
+            if (!response.getBody().get("numeroConta").equals(transferencia.getContaDestino())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Conta de destino inválida");
+            }
+
+            TransacoesEmCI registroParaContaDestino = new TransacoesEmCI();
+            registroParaContaDestino.setValor(transferencia.getValor());
+            registroParaContaDestino.setContaDestino(transferencia.getContaDestino());
+            registroParaContaDestino.setData(transferencia.getData());
+            registroParaContaDestino.setOperacoes(Operacoes.APORTE);
+            registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getContaOrigem()));
+            restTemplate.postForEntity("http://localhost:8083/api/containvestimento/aportar", registroParaContaDestino, TransacoesEmCI.class);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Aporte realizado com sucesso");
+
         } else {
-            contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor().subtract(saldoEspecialDestino)));
-            contadestino.get().setSaldoEspecial(BigDecimal.valueOf(0));
-            contadestino.get().setDataInicioUsoEspecial(null);
+
+            Optional<ContaCorrente> contadestino = contaCorrenteRepository.findByNumeroConta(transferencia.getContaDestino());
+            BigDecimal saldoCCDestino = contadestino.get().getSaldoCorrente();
+            BigDecimal saldoEspecialDestino = contadestino.get().getSaldoEspecial();
+            if (saldoEspecialDestino.equals(BigDecimal.valueOf(0))) {
+                contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor()));
+            } else if (saldoEspecialDestino.compareTo(transferencia.getValor()) >= 0) {
+                contadestino.get().setSaldoEspecial(saldoEspecialDestino.subtract(transferencia.getValor()));
+            } else {
+                contadestino.get().setSaldoCorrente(saldoCCDestino.add(transferencia.getValor().subtract(saldoEspecialDestino)));
+                contadestino.get().setSaldoEspecial(BigDecimal.valueOf(0));
+                contadestino.get().setDataInicioUsoEspecial(null);
+            }
+
+            ContaCorrente contaCorrenteDestino = CCOptionalParaCC(contadestino);
+            contaCorrenteRepository.save(contaCorrenteDestino);
+            TransacoesEmCC registroParaContaDestino = new TransacoesEmCC();
+            registroParaContaDestino.setIdConta(contaCorrenteDestino.getId());
+            registroParaContaDestino.setValor(transferencia.getValor());
+            registroParaContaDestino.setContaDestino(transferencia.getContaDestino());
+            registroParaContaDestino.setData(transferencia.getData());
+            registroParaContaDestino.setOperacoes(transferencia.getOperacoes());
+            registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getIdConta()));
+            transacoesEmCCRepository.save(registroParaContaDestino);
+
+            if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
+                return ResponseEntity.status(HttpStatus.OK).body("Pix realizado com sucesso!");
+            }
+
+            if (transferencia.getOperacoes().equals(Operacoes.DOC)) {
+                return ResponseEntity.status(HttpStatus.OK).body("DOC realizado com sucesso!");
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso!");
         }
-
-        ContaCorrente contaCorrenteDestino = CCOptionalParaCC(contadestino);
-        contaCorrenteRepository.save(contaCorrenteDestino);
-        TransacoesEmCC registroParaContaDestino = new TransacoesEmCC();
-        registroParaContaDestino.setIdConta(contaCorrenteDestino.getId());
-        registroParaContaDestino.setValor(transferencia.getValor());
-        registroParaContaDestino.setContaDestino(transferencia.getContaDestino());
-        registroParaContaDestino.setData(transferencia.getData());
-        registroParaContaDestino.setOperacoes(transferencia.getOperacoes());
-        registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getIdConta()));
-        transacoesEmCCRepository.save(registroParaContaDestino);
-
-        if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
-            return ResponseEntity.status(HttpStatus.OK).body("Pix realizado com sucesso!");
-        }
-
-           return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso!");
 
     }
-
-
-
-
 
     private ContaCorrente CCOptionalParaCC(Optional<ContaCorrente> contaCorrenteOptional) {
         ContaCorrente contaCorrente = new ContaCorrente();

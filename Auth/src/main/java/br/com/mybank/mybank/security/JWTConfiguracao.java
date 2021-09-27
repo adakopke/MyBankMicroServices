@@ -33,8 +33,7 @@ public class JWTConfiguracao extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                //TODO remover a linha abaixo, mas só quando eu conseguir autenticar entre microserviços
-                .antMatchers(HttpMethod.GET, "/api/usuario/listar/*").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/usuario/adicionar").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTAutenticarFilter(authenticationManager()))
