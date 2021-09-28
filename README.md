@@ -18,11 +18,11 @@ Saque: <br>
 processo https://drive.google.com/file/d/1pMqJt67-NrLuQj5KZEDfOmxOHJ3wekhU/view?usp=sharing <br>
 video demonstração 
 
-Transferência (TED/DOC/PIX): <br>
-processo <br>
+Transferência (TED/DOC/PIX/Aporte): <br>
+processo https://drive.google.com/file/d/1hOwvWguKqv4d1G57dRgxxdD7hFCbxCHr/view?usp=sharing <br>
 video demonstração 
 
-Investimento (Aporte/Resgate): <br>
+Investimento (Resgate/Rendimentos): <br>
 processo <br>
 video demonstração 
 
