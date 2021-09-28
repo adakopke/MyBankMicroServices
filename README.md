@@ -22,9 +22,13 @@ Transferência (TED/DOC/PIX/Aporte): <br>
 processo https://drive.google.com/file/d/1hOwvWguKqv4d1G57dRgxxdD7hFCbxCHr/view?usp=sharing <br>
 video demonstração 
 
-Investimento (Resgate/Rendimentos): <br>
-processo <br>
+Investimento (Resgate): <br>
+processo https://drive.google.com/file/d/1PyILYoRBGUwOlXi2tNSEDpQq2XwZLaFR/view?usp=sharing <br>
 video demonstração 
+
+Investimento (Aplicação de rendimentos): <br>
+processo <br>
+video demonstração
 
 Empréstimo: <br>
 processo <br>
