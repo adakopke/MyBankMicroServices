@@ -103,7 +103,7 @@ public class ContaInvestimentoService {
         contaInvestimentoRepository.save(contaInvestimento);
         transacoesEmCIRepository.save(aporte);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Aporte realizado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body("{ \"mensagem\" : \"Aporte realizado com sucesso!\"}");
 
     }
 

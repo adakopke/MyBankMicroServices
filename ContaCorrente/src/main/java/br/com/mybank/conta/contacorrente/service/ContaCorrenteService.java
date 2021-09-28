@@ -126,7 +126,7 @@ public class ContaCorrenteService {
         contaCorrenteRepository.save(contaCorrente);
         transacoesEmCCRepository.save(deposito);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Depósito realizado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"mensagem\" : \"Depósito realizado com sucesso!\"}");
 
     }
 
@@ -146,7 +146,7 @@ public class ContaCorrenteService {
         if (saqueValor.compareTo(saldoCC) <= 0 ) {
             contaCorrenteOptional.get().setSaldoCorrente(saldoCC.subtract(saqueValor));
         } else if (saqueValor.compareTo(saldoCC) > 0
-                && saqueValor.add(saldoEspecial).compareTo(contaCorrenteOptional.get().getLimiteEspecial()) <= 0)  {
+                && saqueValor.compareTo(saldoCC.subtract(saldoEspecial).add(contaCorrenteOptional.get().getLimiteEspecial())) <= 0)  {
             contaCorrenteOptional.get().setSaldoEspecial(saldoEspecial.add(saqueValor.subtract(saldoCC)));
             contaCorrenteOptional.get().setSaldoCorrente(BigDecimal.valueOf(0));
         } else {
