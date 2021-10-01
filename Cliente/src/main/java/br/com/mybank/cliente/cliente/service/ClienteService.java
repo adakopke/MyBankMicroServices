@@ -1,10 +1,13 @@
 package br.com.mybank.cliente.cliente.service;
 
 import br.com.mybank.cliente.cliente.domain.Pessoa;
+import br.com.mybank.cliente.cliente.dto.EmailDTO;
 import br.com.mybank.cliente.cliente.repository.ClienteRepository;
 import com.auth0.jwt.*;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,7 @@ public class ClienteService {
 
         private final ClienteRepository clienteRepository;
         private final RestTemplate restTemplate;
+        private final RabbitMQService rabbitMQService;
 
 
         public ResponseEntity<?> adicionarCliente(Pessoa pessoa, String token) throws JSONException, IOException {
@@ -31,6 +35,16 @@ public class ClienteService {
             if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenJson.get("id"))) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
             }
+
+            EmailDTO mensagem = new EmailDTO();
+
+            mensagem.setOwnerRef("Anderson");
+            mensagem.setEmailFrom("kopkeanderson@gmail.com");
+            mensagem.setEmailTo("adakopke@gmail.com");
+            mensagem.setSubject("produtor");
+            mensagem.setText("Envio via produtor");
+
+            rabbitMQService.enviaMensagem("ms-mail", mensagem);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(clienteRepository.save(pessoa));
 
