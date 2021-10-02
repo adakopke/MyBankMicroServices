@@ -5,9 +5,7 @@ import br.com.mybank.cliente.cliente.dto.EmailDTO;
 import br.com.mybank.cliente.cliente.repository.ClienteRepository;
 import com.auth0.jwt.*;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -29,11 +27,24 @@ public class ClienteService {
         private final RabbitMQService rabbitMQService;
 
 
-        public ResponseEntity<?> adicionarCliente(Pessoa pessoa, String token) throws JSONException, IOException {
-            JSONObject tokenJson = new JSONObject(jwtFilter(token));
+        public ResponseEntity<?> adicionarCliente(Pessoa pessoa, String token) {
 
-            if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenJson.get("id"))) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+
+            JSONObject tokenJson = null;
+            try {
+                tokenJson = new JSONObject(jwtFilter(token));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenJson.get("id"))) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
             EmailDTO mensagem = new EmailDTO();
@@ -51,48 +62,90 @@ public class ClienteService {
 
     }
 
-   public ResponseEntity<?> listarTodos(String token) throws JSONException, IOException {
+   public ResponseEntity<?> listarTodos(String token)  {
 
-       JSONObject tokenJson = new JSONObject(jwtFilter(token));
-
-       if (!isValidBearerToken(token) || !tokenJson.get("sub").equals("admin")) {
-           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+       JSONObject tokenJson = null;
+       try {
+           tokenJson = new JSONObject(jwtFilter(token));
+       } catch (JSONException e) {
+           e.printStackTrace();
        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(clienteRepository.findAll());
+       try {
+           if (!isValidBearerToken(token) || !tokenJson.get("sub").equals("admin")) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+           }
+       } catch (IOException e) {
+           e.printStackTrace();
+       } catch (JSONException e) {
+           e.printStackTrace();
+       }
+
+       return ResponseEntity.status(HttpStatus.OK).body(clienteRepository.findAll());
 
     }
 
-    public ResponseEntity<?> atualizarCliente(Pessoa pessoa, String token) throws JSONException, IOException {
+    public ResponseEntity<?> atualizarCliente(Pessoa pessoa, String token) {
 
         if (token.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Necessário informar o token");
         }
 
-        JSONObject tokenjson = new JSONObject(jwtFilter(token));
-
-        if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenjson.get("id"))) {
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
-
+        JSONObject tokenjson = null;
+        try {
+            tokenjson = new JSONObject(jwtFilter(token));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        pessoa.setId(listarPorIdUsuario((Integer) tokenjson.get("id")).get().getId());
+        try {
+            if (!isValidBearerToken(token) || !pessoa.getIdUsuario().equals(tokenjson.get("id"))) {
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expirado ou inválido");
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            pessoa.setId(listarPorIdUsuario((Integer) tokenjson.get("id")).get().getId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(clienteRepository.save(pessoa));
     }
 
 
     //TODO verificar se tem conta ativa antes de deixar desativar o cliente
-    public ResponseEntity<?> removerPessoa(String token) throws JSONException, IOException {
+    public ResponseEntity<?> removerPessoa(String token) {
 
-       JSONObject tokenjson = new JSONObject(jwtFilter(token));
-        if (!isValidBearerToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido ou expirado");
-        } else if (listarPorIdUsuario((Integer) tokenjson.get("id")).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
+        JSONObject tokenjson = null;
+        try {
+            tokenjson = new JSONObject(jwtFilter(token));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-       Pessoa pessoa = listarPorIdUsuario((Integer) tokenjson.get("id")).get();
-       pessoa.setAtivo(false);
+        try {
+            if (!isValidBearerToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido ou expirado");
+            } else if (listarPorIdUsuario((Integer) tokenjson.get("id")).isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Pessoa pessoa = null;
+        try {
+            pessoa = listarPorIdUsuario((Integer) tokenjson.get("id")).get();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        pessoa.setAtivo(false);
        clienteRepository.save(pessoa);
        return ResponseEntity.status(HttpStatus.OK).body("Usuário desativado com sucesso");
        }

@@ -1,10 +1,7 @@
 package br.com.mybank.cliente.cliente.controller;
-
-
 import br.com.mybank.cliente.cliente.domain.Pessoa;
 import br.com.mybank.cliente.cliente.service.ClienteService;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,23 +18,23 @@ public class ClienteController {
 
 
     @PostMapping("adicionar")
-    public ResponseEntity<?> adicionarCliente(@RequestBody Pessoa pessoa, @RequestHeader(value = "Authorization", required = true) String token) throws JSONException, IOException {
+    public ResponseEntity<?> adicionarCliente(@RequestBody Pessoa pessoa, @RequestHeader(value = "Authorization", required = true) String token)  {
         return clienteService.adicionarCliente(pessoa, token);
     }
 
     @GetMapping("listartodos")
-    public ResponseEntity<?> listarTodos(@RequestHeader(value = "Authorization", required = true) String token) throws JSONException, IOException {
+    public ResponseEntity<?> listarTodos(@RequestHeader(value = "Authorization", required = true) String token) {
         return clienteService.listarTodos(token);
     }
 
     @PutMapping("atualizar")
-    public ResponseEntity<?> atualizarPessoa(@RequestBody Pessoa pessoa, @RequestHeader(value = "Authorization", required = true) String token) throws JSONException, IOException {
+    public ResponseEntity<?> atualizarPessoa(@RequestBody Pessoa pessoa, @RequestHeader(value = "Authorization", required = true) String token) {
 
         return clienteService.atualizarCliente(pessoa, token);
     }
 
     @DeleteMapping("remover")
-    public ResponseEntity<?> removerPessoa(@RequestHeader (value = "Authorization", required = true) String token) throws JSONException, IOException {
+    public ResponseEntity<?> removerPessoa(@RequestHeader (value = "Authorization", required = true) String token) {
         return clienteService.removerPessoa(token);
     }
 
