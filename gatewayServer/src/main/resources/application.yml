@@ -28,6 +28,39 @@ spring:
           uri: lb://cliente-service
           predicates:
             - Path=/api/cliente/**
+        
+        - id: emprestimo-service
+          uri: lb://emprestimo-service
+          predicates:
+            - Path=/api/emprestimo/**
+        
+        - id: pix-service
+          uri: lb://pix-service
+          predicates:
+            - Path=/api/pix/**
+        
+        - id: pix-service
+          uri: lb://pix-service
+          predicates:
+            - Path=/api/pix/**
+        
+
+        - id: containvestimento-service
+          uri: lb://containvestimento-service
+          predicates:
+            - Path=/api/containvestimento/**
+        
+
+        - id: email-service
+          uri: lb://email-service
+          predicates:
+            - Path=/**
+      
+
+        - id: eureka-service
+          uri: lb://eureka-service
+          predicates:
+            - Path=/admin/**
 
 
 

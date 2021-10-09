@@ -41,8 +41,6 @@ dependencies {
     implementation group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: '2.5.2'
     // https://mvnrepository.com/artifact/com.auth0/java-jwt
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.18.2'
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-amqp', version: '2.5.5'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-json
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: '2.5.5'
     implementation 'org.springframework.boot:spring-boot-configuration-processor:2.5.5'
