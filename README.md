@@ -1,6 +1,8 @@
 Projeto para estudo sobre micro serviços através da criação de uma aplicação de gestão de contas bancárias envolvendo:
 Abertura de conta, saque, deposito, transferência, investimento, pix, recarga de celular, etc.
 
+Collections do postman para realização dos testes: https://drive.google.com/drive/folders/1ayp8iwwYt5ZiIXFMsy3zur_wSq2bbJmp?usp=sharing <br>
+
 
 Criação de usuário e senha, login, geração de token e abertura de conta: <br>
 processo https://drive.google.com/file/d/1jNXKuj68VPr2B-9SbZaE0p6YRBu4kBI9/view?usp=sharing <br>
