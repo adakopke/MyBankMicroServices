@@ -1,2 +1,0 @@
-br/com/mybank/cliente/cliente/ClienteApplicationTests.java
- br.com.mybank.cliente.cliente.ClienteApplicationTests
