@@ -39,7 +39,7 @@ public class ClienteService {
         mensagem.setEmailFrom("kopkeanderson@gmail.com");
         mensagem.setEmailTo(pessoa.getEmail());
         mensagem.setSubject("Dados do cliente");
-        mensagem.setText(pessoa.toString());
+        mensagem.setText("cliente adicionado");
         rabbitMQService.enviaMensagem("ms-mail", mensagem);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteRepository.save(pessoa));
