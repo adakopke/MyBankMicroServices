@@ -1,7 +1,7 @@
 Projeto para estudo sobre micro serviços através da criação de uma aplicação de gestão de contas bancárias envolvendo:
 Abertura de conta, saque, deposito, transferência, investimento, pix, recarga de celular, etc.
 
-Collections do postman para realização dos testes: https://drive.google.com/drive/folders/1ayp8iwwYt5ZiIXFMsy3zur_wSq2bbJmp?usp=sharing <br>
+Collections do postman para realização dos testes: <br> https://drive.google.com/drive/folders/1ayp8iwwYt5ZiIXFMsy3zur_wSq2bbJmp?usp=sharing <br>
 
 Docker-compose.yml e arquivos gerados pelo kompose para kubernetes: https://drive.google.com/drive/folders/1Cu1MIvcI8f9bH17T7uZih3daFo35F80N?usp=sharing <br>
 
