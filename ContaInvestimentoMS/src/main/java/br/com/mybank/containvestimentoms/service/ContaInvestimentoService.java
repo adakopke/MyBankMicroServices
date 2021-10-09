@@ -1,4 +1,5 @@
 package br.com.mybank.containvestimentoms.service;
+import br.com.mybank.containvestimentoms.config.ServersConfig;
 import br.com.mybank.containvestimentoms.domain.ContaInvestimento;
 import br.com.mybank.containvestimentoms.domain.Operacoes;
 import br.com.mybank.containvestimentoms.domain.TransacoesEmCI;
@@ -8,6 +9,7 @@ import br.com.mybank.containvestimentoms.response.TransacoesEmCC;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ public class ContaInvestimentoService {
     private final ContaInvestimentoRepository contaInvestimentoRepository;
     private final TransacoesEmCIRepository transacoesEmCIRepository;
     private final RestTemplate restTemplate;
+    private final ServersConfig serversConfig;
 
     public ResponseEntity<?> adicionarContaInvestimento(ContaInvestimento contaInvestimento, String token)  {
         JSONObject tokenJson = null;
@@ -184,7 +187,7 @@ public class ContaInvestimentoService {
         ResponseEntity<Map> response = null;
         try {
             response = restTemplate.getForEntity(
-            String.format("http://localhost:8082/api/contacorrente/listar/%s", tokenJson.get("id")), Map.class);
+            String.format("http://" + serversConfig.getContacorrenteMS() + ":8082/api/contacorrente/listar/%s", tokenJson.get("id")), Map.class);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -219,7 +222,7 @@ public class ContaInvestimentoService {
         registroParaContaDestino.setOperacoes(Operacoes.DEPOSITO);
         registroParaContaDestino.setContaOrigem(String.valueOf(contaInvestimentoOptional.get().getNumeroConta()));
 
-        restTemplate.postForEntity("http://localhost:8082/api/contacorrente/depositar", registroParaContaDestino, TransacoesEmCC.class);
+        restTemplate.postForEntity("http://" + serversConfig.getContacorrenteMS() + ":8082/api/contacorrente/depositar", registroParaContaDestino, TransacoesEmCC.class);
 
         return ResponseEntity.status(HttpStatus.OK).body("Retirada realizada com sucesso");
 

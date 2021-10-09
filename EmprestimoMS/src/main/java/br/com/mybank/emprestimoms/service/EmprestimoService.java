@@ -1,4 +1,5 @@
 package br.com.mybank.emprestimoms.service;
+import br.com.mybank.emprestimoms.config.ServersConfig;
 import br.com.mybank.emprestimoms.domain.Emprestimo;
 import br.com.mybank.emprestimoms.repository.EmprestimoRepository;
 import br.com.mybank.emprestimoms.repository.LinhaDeCreditoRepository;
@@ -25,6 +26,7 @@ public class EmprestimoService {
     private final EmprestimoRepository emprestimoRepository;
     private final LinhaDeCreditoRepository linhaDeCreditoRepository;
     private final RestTemplate restTemplate;
+    private final ServersConfig serversConfig;
 
     public ResponseEntity<?> solicitar(SolicitacaoEmprestimo emprestimoSolicitacao, String token) {
         JSONObject tokenJson = null;
@@ -85,7 +87,7 @@ public class EmprestimoService {
         ResponseEntity<Map> response = null;
         try {
             response = restTemplate.getForEntity(
-                    String.format("http://localhost:8082/api/contacorrente/listar/%s", tokenJson.get("id")), Map.class);
+                    String.format("http://" + serversConfig.getContacorrente() + ":8082/api/contacorrente/listar/%s", tokenJson.get("id")), Map.class);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -100,7 +102,7 @@ public class EmprestimoService {
         registroParaContaDestino.setData(emprestimo.getDataEmprestimo());
         registroParaContaDestino.setOperacoes("DEPOSITO");
         emprestimoRepository.save(emprestimo);
-        restTemplate.postForEntity("http://localhost:8082/api/contacorrente/depositar", registroParaContaDestino, TransacoesEmCC.class);
+        restTemplate.postForEntity("http://" + serversConfig.getContacorrente() + ":8082/api/contacorrente/depositar", registroParaContaDestino, TransacoesEmCC.class);
 
         return ResponseEntity.status(HttpStatus.OK).body("Emprestimo realizado com sucesso");
 

@@ -1,4 +1,5 @@
 package br.com.mybank.contacorrentems.service;
+import br.com.mybank.contacorrentems.config.ServersConfig;
 import br.com.mybank.contacorrentems.domain.ContaCorrente;
 import br.com.mybank.contacorrentems.domain.Operacoes;
 import br.com.mybank.contacorrentems.domain.TransacoesEmCC;
@@ -29,6 +30,7 @@ public class ContaCorrenteService {
     private final ContaCorrenteRepository contaCorrenteRepository;
     private final TransacoesEmCCRepository transacoesEmCCRepository;
     private final RestTemplate restTemplate;
+    private final ServersConfig serversConfig;
 
     public ResponseEntity<?> adicionarContaCorrente(ContaCorrente contaCorrente, String token) {
         JSONObject tokenJson = null;
@@ -221,7 +223,6 @@ public class ContaCorrenteService {
 
     public ResponseEntity<?> transferir(TransacoesEmCC transferencia, String token) {
 
-
         JSONObject tokenJson = null;
         try {
             tokenJson = new JSONObject(jwtFilter(token));
@@ -239,11 +240,10 @@ public class ContaCorrenteService {
             e.printStackTrace();
         }
 
-
         if (transferencia.getOperacoes().equals(Operacoes.PIX)) {
 
             ResponseEntity<Map> response = restTemplate.getForEntity(
-                    String.format("http://localhost:8079/api/pix/consultar/%s", transferencia.getPixDestino()), Map.class);
+                    String.format("http://" + serversConfig.getPix() + ":8079/api/pix/consultar/%s", transferencia.getPixDestino()), Map.class);
 //TODO tratar essa resposta de uma maneira melhor, tentar pelo código do retorno fornecido pelo pixAPI
         if (response.getBody().get("resp").equals("false")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chave pix não encontrada");
@@ -287,7 +287,7 @@ public class ContaCorrenteService {
             ResponseEntity<Map> response = null;
             try {
                 response = restTemplate.getForEntity(
-                        String.format("http://localhost:8083/api/containvestimento/listar/%s", tokenJson.get("id")), Map.class);
+                        String.format("http://" + serversConfig.getContainvestimento() + ":8083/api/containvestimento/listar/%s", tokenJson.get("id")), Map.class);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -302,7 +302,7 @@ public class ContaCorrenteService {
             registroParaContaDestino.setData(transferencia.getData());
             registroParaContaDestino.setOperacoes(Operacoes.APORTE);
             registroParaContaDestino.setContaOrigem(String.valueOf(transferencia.getContaOrigem()));
-            restTemplate.postForEntity("http://localhost:8083/api/containvestimento/aportar", registroParaContaDestino, TransacoesEmCI.class);
+            restTemplate.postForEntity("http://" + serversConfig.getContainvestimento() + ":8083/api/containvestimento/aportar", registroParaContaDestino, TransacoesEmCI.class);
 
             return ResponseEntity.status(HttpStatus.OK).body("Aporte realizado com sucesso");
 
@@ -420,7 +420,7 @@ public class ContaCorrenteService {
         ResponseEntity<Map> response = null;
         try {
             response = restTemplate.getForEntity(
-                    String.format("http://localhost:8081/api/cliente/pesquisar/%s", tokenJson.get("id")), Map.class);
+                    String.format("http://" + serversConfig.getCliente() + ":8081/api/cliente/pesquisar/%s", tokenJson.get("id")), Map.class);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,45 @@
+server:
+  port: 8078
+
+spring:
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      routes:
+        - id: usuario-service
+          uri: lb://usuario-service
+          predicates:
+            - Path=/api/usuario/**
+#          filters:
+#            - RewritePath=/api/usuario(?<segment>.*), /$\{segment}
+
+        - id: usuario-service
+          uri: lb://usuario-service
+          predicates:
+            - Path=/login/**
+
+        - id: contacorrente-service
+          uri: lb://contacorrente-service
+          predicates:
+            - Path=/api/contacorrente/**
+
+        - id: cliente-service
+          uri: lb://cliente-service
+          predicates:
+            - Path=/api/cliente/**
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+eureka:
+  client:
+    region: default
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

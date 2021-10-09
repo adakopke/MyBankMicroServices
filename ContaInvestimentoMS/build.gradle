@@ -18,6 +18,12 @@ repositories {
     mavenCentral()
 }
 
+bootJar {
+    archiveBaseName = 'containvestimento-server'
+    archiveVersion = '0.0.1'
+}
+
+
 ext {
     set('springCloudVersion', "2020.0.4")
 }
