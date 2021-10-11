@@ -18,36 +18,32 @@ video demonstração https://drive.google.com/file/d/1XFRvK3ZOhtAPMZBUo8OSczVxpQ
 
 Deposito: <br>
 processo https://drive.google.com/file/d/1dRpPRpV_6PF91GZx48NkY3z14terL6Z-/view?usp=sharing <br>
-video demonstração https://drive.google.com/file/d/1ijkQI1O9_tdcfojhKm4_6ed-wobrVnfb/view?usp=sharing
+video demonstração https://drive.google.com/file/d/1LqmP15w398FdjsEja_8DM9Qi0xxejQPt/view?usp=sharing <br>
 
-Saque: <br>
-processo https://drive.google.com/file/d/1pMqJt67-NrLuQj5KZEDfOmxOHJ3wekhU/view?usp=sharing <br>
-video demonstração 
+Saque e Cheque especial (Juros diários de 1%): : <br>
+processo saque: https://drive.google.com/file/d/1pMqJt67-NrLuQj5KZEDfOmxOHJ3wekhU/view?usp=sharing <br>
+processo juros: https://drive.google.com/file/d/1A_A-wrg_OqCsUSVwu0_nGTkG7AdzScfO/view?usp=sharing <br>
+video demonstração https://drive.google.com/file/d/1zJKTS6r7WllxfC-ZJHtRYDUMqobN0jnQ/view?usp=sharing <br>
 
-Transferência (TED/DOC/PIX/Aporte): <br>
+Transferência (TED/DOC/PIX/): <br>
 processo https://drive.google.com/file/d/1hOwvWguKqv4d1G57dRgxxdD7hFCbxCHr/view?usp=sharing <br>
-video demonstração 
+video demonstração https://drive.google.com/file/d/1VSIA9s0zvo5SrUKz92hX-Q7yCOeHwc-K/view?usp=sharing <br>
 
 Investimento (Resgate): <br>
 processo https://drive.google.com/file/d/1PyILYoRBGUwOlXi2tNSEDpQq2XwZLaFR/view?usp=sharing <br>
-video demonstração 
+video demonstração https://drive.google.com/file/d/1c6PtCratAMY_kwgEzsMsdvfJPvfggujH/view?usp=sharing <br>
 
-Investimento (Aplicação de rendimentos): <br>
+Investimento (Aporte e Aplicação de rendimentos): <br>
 processo https://drive.google.com/file/d/1RB3AJ8rkH7Ukiow1H7Xm7fC3LPDz0Sry/view?usp=sharing <br>
-video demonstração
+video demonstração https://drive.google.com/file/d/1SBA2jrZtZam-skkLcGwpsTMHccLN8kmP/view?usp=sharing <br>
 
 Empréstimo: <br>
 processo https://drive.google.com/file/d/1ydHNr89kNBEdTK85BkYkLL-LYhckwyPB/view?usp=sharing <br>
-video demonstração 
+video demonstração https://drive.google.com/file/d/1ElFuYhaNafzc0_W520gdRHe_kM28FYi_/view?usp=sharing <br>
 
 Recarga de celular:  <br>
 processo https://drive.google.com/file/d/1LFPQwFUV6w6kAhkyDrqMGJiKxdrj7rpi/view?usp=sharing <br>
-video demonstração 
-
-Cheque especial (Juros diários de 1%): <br>
-processo https://drive.google.com/file/d/1A_A-wrg_OqCsUSVwu0_nGTkG7AdzScfO/view?usp=sharing <br>
-video demonstração
-
+video demonstração https://drive.google.com/file/d/1vMhg2BiL3Vhhos5P30FM_q7AO-LwCKIb/view?usp=sharing <br>
 
 
 
