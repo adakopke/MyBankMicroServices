@@ -5,13 +5,16 @@ Collections do postman para realização dos testes: <br> https://drive.google.c
 
 Docker-compose.yml e arquivos gerados pelo kompose para kubernetes: https://drive.google.com/drive/folders/1Cu1MIvcI8f9bH17T7uZih3daFo35F80N?usp=sharing <br>
 
+
+Apresentação da estrutura do projeto: <br> https://drive.google.com/file/d/1ejjMEH-FSZY_i9i_sDLtOEGKLDIx2Hvv/view?usp=sharing <br> 
+
 Criação de usuário e senha, login, geração de token e abertura de conta: <br>
 processo https://drive.google.com/file/d/1jNXKuj68VPr2B-9SbZaE0p6YRBu4kBI9/view?usp=sharing <br>
-video demonstração https://drive.google.com/file/d/1n1RKVSKvVDueV4WHMi-ZhRAiqdFvr1O6/view?usp=sharing
+video demonstração https://drive.google.com/file/d/1zAUpMzhmMjAaPxv_jzvwUfj-Hlx8g9ba/view?usp=sharing <br>
 
 Fechamento de conta <br>
 processo https://drive.google.com/file/d/1qdHqRLdjLOK4RjzjOGE30r14Q8tt2aUI/view?usp=sharing <br>
-video demonstração
+video demonstração https://drive.google.com/file/d/1XFRvK3ZOhtAPMZBUo8OSczVxpQkbtG6x/view?usp=sharing <br> 
 
 Deposito: <br>
 processo https://drive.google.com/file/d/1dRpPRpV_6PF91GZx48NkY3z14terL6Z-/view?usp=sharing <br>
